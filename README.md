@@ -1,10 +1,10 @@
-# ⚡ B2B Churn Intelligence & Retention Platform
+# B2B Churn Intelligence & Retention Platform
 
 An enterprise-grade, full-stack intelligence platform that bridges **predictive machine learning**, **explainable AI (XAI)**, and **frontline retention operations**. Built to identify at-risk enterprise accounts early, uncover root risk drivers, and equip retention squads with real-time AI copilots during active customer calls.
 
 ---
 
-## 📌 The Problem & Business Impact
+## The Problem & Business Impact
 In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
 1. **Lagging Indicators:** Companies often realize a customer is leaving only after they request cancellation.
 2. **The "Black-Box" ML Problem:** Traditional machine learning models output a churn percentage (e.g. *82% risk*) but give account executives zero context on *why* or what offer could save the contract.
@@ -17,7 +17,7 @@ In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
 
 ---
 
-## 🧠 System Architecture & Workflow
+## System Architecture & Workflow
 
 ```text
 ┌────────────────────────┐       ┌─────────────────────────┐       ┌────────────────────────┐
@@ -29,7 +29,7 @@ In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
 ┌───────────────────────────────────────────────────────────────────────────────────────────┐
 │                                   React Frontend Engine                                   │
 ├───────────────────────────────────────────┬───────────────────────────────────────────────┤
-│         👔 Executive / Manager View       │            🎧 Frontline Agent View            │
+│          Executive / Manager View         │             Frontline Agent View              │
 │  • Portfolio ARR at Risk                  │  • Assigned Priority Call Queue               │
 │  • Team Performance & Lead Dispatch       │  • Live Quota & Revenue Recovery Tracker      │
 │  • Interactive Risk Analytics             │  • In-Call GenAI Copilot (Battle-cards)       │
@@ -38,21 +38,21 @@ In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
 
 ---
 
-## ✨ Core Capabilities
+## Core Capabilities
 
-### 1. 👔 Executive & Manager Intelligence
+### 1. Executive & Manager Intelligence
 * **Portfolio Risk Distribution:** Visualizes revenue at risk, churn percentages, and high-risk accounts across enterprise contracts.
 * **SHAP Factor Attribution Drawer:** Transparently explains why a customer was flagged (e.g., impact of month-to-month contracts, tenure, lack of technical support, or billing hikes).
 * **Workforce & Squad Management:** Manage retention squads, balance lead workloads across agents, and track team conversion metrics and recovered ARR.
 
-### 2. 🎧 Frontline Agent Experience & Live Call Queue
+### 2. Frontline Agent Experience & Live Call Queue
 * **Intelligent Call Queue:** Automatically prioritized worklist showing assigned high-risk accounts with one-click status transitions (*Not Contacted → Contacted → Converted / Lost*).
 * **Live Quota Reconciliation:** Real-time progress tracker reflecting agent targets and recovered customer revenue.
 * **In-Call GenAI Retention Copilot:** Built-in LLM copilot that digests customer telemetry and SHAP risk drivers to generate instant talking points, objection handling, and tailored retention offers during active customer calls.
 
 ---
 
-## 🛠️ Tech Stack & Technical Deep-Dive
+## Tech Stack & Technical Deep-Dive
 
 | Layer | Technologies | Purpose |
 |---|---|---|
@@ -64,7 +64,7 @@ In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
 
 ---
 
-## 🚀 Getting Started (Local Setup)
+## Getting Started (Local Setup)
 
 ### Prerequisites
 * **Docker Desktop** (for PostgreSQL)
@@ -106,7 +106,7 @@ Open the web application at: **`http://localhost:5173`**
 
 ---
 
-## 🔌 API Reference Highlights
+## API Reference Highlights
 
 * `GET /sessions/` — List all intelligence sessions and high-level risk summaries.
 * `GET /sessions/{id}/stats` — Fetch calculated portfolio stats (ARR at risk, conversion rates).
@@ -118,12 +118,12 @@ Open the web application at: **`http://localhost:5173`**
 
 ---
 
-## 👥 Demo Credentials
+## Demo Credentials
 For testing and demonstrations, mock roles are pre-configured:
 * **Manager Role:** `sarah.director@telecom.com` | Password: `demo123`
 * **Agent Role:** `alex.agent@telecom.com` | Password: `demo123`
 
 ---
 
-## 📄 License
+## License
 This project is open-source and available under the **MIT License**.
