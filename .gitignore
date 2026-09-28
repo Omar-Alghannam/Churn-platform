@@ -1,0 +1,45 @@
+# Environment variables — NEVER commit these
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg
+
+# ML artifacts (large binary files — store in Azure Blob or copy manually)
+# backend/ml_artifacts/*.pkl   ← uncomment if you want to exclude from git
+
+# Node / React
+node_modules/
+frontend/dist/
+frontend/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic — keep migrations but exclude generated pycache
+backend/alembic/__pycache__/
+
+CREDENTIALS.md
+*.env
+backend/.env
+frontend/.env
+
+test_email.py
+test_api.py
+test_teams.py
+predict.py
+/package-lock.json
