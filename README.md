@@ -1,199 +1,129 @@
-# Churn Intelligence — Developer Guide
+# ⚡ B2B Churn Intelligence & Retention Platform
 
-## Project Structure
+An enterprise-grade, full-stack intelligence platform that bridges **predictive machine learning**, **explainable AI (XAI)**, and **frontline retention operations**. Built to identify at-risk enterprise accounts early, uncover root risk drivers, and equip retention squads with real-time AI copilots during active customer calls.
 
-```
-c:\Eand\
-├── backend/
-│   ├── main.py              ← FastAPI entrypoint
-│   ├── models.py            ← SQLAlchemy ORM (sessions, customers, chat)
-│   ├── schemas.py           ← Pydantic request/response schemas
-│   ├── database.py          ← DB engine + get_db() dependency
-│   ├── config.py            ← Settings loaded from .env
-│   ├── routers/
-│   │   ├── sessions.py      ← Session CRUD + stats + chat history
-│   │   ├── customers.py     ← Customer list, detail, status update
-│   │   ├── upload.py        ← CSV upload → ML score → store
-│   │   └── chat.py          ← Azure OpenAI chat with tool-calling
-│   ├── ml/
-│   │   ├── predict.py       ← predict_risk() (path-resolved version)
-│   │   └── predictor.py     ← explain_risk() via SHAP TreeExplainer
-│   ├── ml_artifacts/        ← churn_model.pkl, churn_scaler.pkl, churn_columns.pkl
-│   ├── requirements.txt
-│   └── .env.example         ← Template — copy to .env and fill in
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── api.js
-│   │   ├── index.css        ← Full design system
-│   │   └── components/
-│   │       ├── Sidebar.jsx
-│   │       ├── StatCards.jsx
-│   │       ├── UploadPanel.jsx
-│   │       ├── CustomerTable.jsx
-│   │       ├── CustomerDetail.jsx   ← SHAP drawer + contact status
-│   │       └── ChatPanel.jsx        ← AI chat with tool-call loop
-│   ├── package.json
-│   ├── vite.config.js
-│   └── .env
-├── docker-compose.yml        ← Postgres + pgAdmin for local dev
-└── .gitignore
+---
+
+## 📌 The Problem & Business Impact
+In enterprise telecom and B2B SaaS, customer churn is silent and expensive:
+1. **Lagging Indicators:** Companies often realize a customer is leaving only after they request cancellation.
+2. **The "Black-Box" ML Problem:** Traditional machine learning models output a churn percentage (e.g. *82% risk*) but give account executives zero context on *why* or what offer could save the contract.
+3. **Frontline Disconnect:** High-level executive reports rarely translate into actionable, daily workflows for support and retention agents on the phones.
+
+**How This Platform Solves It:**
+* **Predicts** churn probability before contract expiry using an optimized **XGBoost** classification model.
+* **Explains** root cause drivers for every customer individually using **SHAP (Shapley Additive exPlanations)**.
+* **Operationalizes** retention with role-based access control (RBAC), a real-time call queue, live quota tracking, and an **in-call GenAI copilot**.
+
+---
+
+## 🧠 System Architecture & Workflow
+
+```text
+┌────────────────────────┐       ┌─────────────────────────┐       ┌────────────────────────┐
+│   Enterprise Telemetry │ ───►  │  FastAPI Inference Core │ ───►  │  Explainable AI (SHAP) │
+│ (Usage, Tenure, Bills) │       │    (XGBoost Classifier) │       │   Feature Attributions │
+└────────────────────────┘       └────────────┬────────────┘       └───────────┬────────────┘
+                                              │                                │
+                                              ▼                                ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   React Frontend Engine                                   │
+├───────────────────────────────────────────┬───────────────────────────────────────────────┤
+│         👔 Executive / Manager View       │            🎧 Frontline Agent View            │
+│  • Portfolio ARR at Risk                  │  • Assigned Priority Call Queue               │
+│  • Team Performance & Lead Dispatch       │  • Live Quota & Revenue Recovery Tracker      │
+│  • Interactive Risk Analytics             │  • In-Call GenAI Copilot (Battle-cards)       │
+└───────────────────────────────────────────┴───────────────────────────────────────────────┘
 ```
 
 ---
 
-## 1. First-Time Setup
+## ✨ Core Capabilities
+
+### 1. 👔 Executive & Manager Intelligence
+* **Portfolio Risk Distribution:** Visualizes revenue at risk, churn percentages, and high-risk accounts across enterprise contracts.
+* **SHAP Factor Attribution Drawer:** Transparently explains why a customer was flagged (e.g., impact of month-to-month contracts, tenure, lack of technical support, or billing hikes).
+* **Workforce & Squad Management:** Manage retention squads, balance lead workloads across agents, and track team conversion metrics and recovered ARR.
+
+### 2. 🎧 Frontline Agent Experience & Live Call Queue
+* **Intelligent Call Queue:** Automatically prioritized worklist showing assigned high-risk accounts with one-click status transitions (*Not Contacted → Contacted → Converted / Lost*).
+* **Live Quota Reconciliation:** Real-time progress tracker reflecting agent targets and recovered customer revenue.
+* **In-Call GenAI Retention Copilot:** Built-in LLM copilot that digests customer telemetry and SHAP risk drivers to generate instant talking points, objection handling, and tailored retention offers during active customer calls.
+
+---
+
+## 🛠️ Tech Stack & Technical Deep-Dive
+
+| Layer | Technologies | Purpose |
+|---|---|---|
+| **Machine Learning** | `XGBoost`, `SHAP`, `Scikit-Learn`, `Pandas` | Churn prediction & individual feature attribution |
+| **Backend API** | `FastAPI`, `Python 3.10+`, `Pydantic v2` | High-throughput async REST endpoints & model serving |
+| **Database & ORM** | `PostgreSQL`, `SQLAlchemy`, `Docker Compose` | Relational persistence for accounts, sessions, & team state |
+| **GenAI / Copilot** | `Azure OpenAI (gpt-4o-mini)`, Tool Calling | Context-grounded live negotiation battle-cards |
+| **Frontend** | `React`, `Vite`, Modular Design System | Responsive, low-latency UI for managers and agents |
+
+---
+
+## 🚀 Getting Started (Local Setup)
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- Docker Desktop (for local Postgres)
+* **Docker Desktop** (for PostgreSQL)
+* **Python 3.10+**
+* **Node.js 18+**
 
-### Step 1 — Copy the ML artifacts
-
-The pkl files should already be in `backend/ml_artifacts/`. If not, run:
-```powershell
-Copy-Item churn_model.pkl backend\ml_artifacts\
-Copy-Item churn_scaler.pkl backend\ml_artifacts\
-Copy-Item churn_columns.pkl backend\ml_artifacts\
-```
-
-### Step 2 — Create the backend .env
-
-```powershell
-Copy-Item backend\.env.example backend\.env
-```
-Then open `backend\.env` and fill in:
-- `AZURE_OPENAI_ENDPOINT` — your Azure OpenAI resource endpoint
-- `AZURE_OPENAI_API_KEY` — Key 1 from the Azure Portal
-- `MODEL_AUC` — the AUC value from your Colab training notebook (e.g. `0.84`)
-
-The `DATABASE_URL` is already set for local Docker Compose.
-
-### Step 3 — Start Postgres (Docker)
-
+### 1. Database
 ```powershell
 docker-compose up -d
 ```
+*(Postgres runs on port `5432`; pgAdmin runs on `http://localhost:5050`)*
 
-pgAdmin available at: http://localhost:5050  
-(Email: `admin@local.dev` / Password: `admin`)
-
-### Step 4 — Install Python dependencies
-
+### 2. Backend Setup
 ```powershell
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+
+# Copy environment template
+cp .env.example .env
 ```
+> Edit `backend/.env` to configure your database connection and Azure OpenAI keys.
 
-### Step 5 — Start the backend
-
+Start the FastAPI server:
 ```powershell
-# From the c:\Eand directory (NOT inside backend/)
-cd c:\Eand
-backend\.venv\Scripts\activate
+cd ..
 uvicorn backend.main:app --reload --port 8000
 ```
+Interactive Swagger API docs will be live at: **`http://localhost:8000/docs`**
 
-API docs: http://localhost:8000/docs
-
-### Step 6 — Install frontend dependencies
-
+### 3. Frontend Setup
 ```powershell
-cd c:\Eand\frontend
+cd frontend
 npm install
-```
-
-### Step 7 — Start the frontend
-
-```powershell
-cd c:\Eand\frontend
 npm run dev
 ```
-
-App available at: http://localhost:5173
-
----
-
-## 2. Azure OpenAI Setup
-
-See the [Implementation Plan](./implementation_plan.md) for the full walkthrough. Summary:
-
-1. Request access at https://aka.ms/oai/access
-2. Create Azure OpenAI resource in East US, Standard S0
-3. Deploy `gpt-4o-mini` in AI Foundry → Deployments
-4. Copy endpoint + key to `backend/.env`
+Open the web application at: **`http://localhost:5173`**
 
 ---
 
-## 3. Using the App
+## 🔌 API Reference Highlights
 
-1. **Create a session** — click "New Session" in the sidebar
-2. **Upload a CSV** — go to "Upload Data" tab, drop your Telco CSV
-3. **View dashboard** — stat cards update automatically, customer table is sortable/filterable
-4. **Open a customer** — click any row to see the SHAP explanation and set contact status
-5. **Chat** — ask the AI assistant anything about the session data
-
-### Example chat questions
-- "Who are my top 5 highest-value at-risk customers?"
-- "Why is customer 7590-VHVEG at risk?"
-- "How risky are my month-to-month contract customers?"
-- "Suggest a next action for my riskiest customer"
+* `GET /sessions/` — List all intelligence sessions and high-level risk summaries.
+* `GET /sessions/{id}/stats` — Fetch calculated portfolio stats (ARR at risk, conversion rates).
+* `GET /customers/session/{id}` — Filtered and paginated customer risk records.
+* `GET /customers/{id}` — Detailed customer profile with calculated **SHAP feature impacts**.
+* `PATCH /customers/{id}/status` — Update outreach status (*Contacted / Converted / Lost*).
+* `POST /upload/` — CSV ingestion pipeline with automated feature encoding and inference.
+* `POST /chat/{session_id}` — In-session AI Copilot with tool-calling support.
 
 ---
 
-## 4. Contact Status Workflow
-
-Each customer has a status: **Not Contacted → Contacted → Converted / Lost**
-
-Update inline from the table dropdown, or from the customer detail drawer.  
-The AI assistant is also aware of current statuses.
+## 👥 Demo Credentials
+For testing and demonstrations, mock roles are pre-configured:
+* **Manager Role:** `sarah.director@telecom.com` | Password: `demo123`
+* **Agent Role:** `alex.agent@telecom.com` | Password: `demo123`
 
 ---
 
-## 5. Azure Deployment (Demo Mode)
-
-When ready to demo, set up Azure Postgres:
-```bash
-az postgres flexible-server create \
-  --resource-group churn-intelligence-rg \
-  --name churn-db-<yourname> \
-  --location eastus \
-  --admin-user churnadmin \
-  --admin-password <STRONG_PASSWORD> \
-  --sku-name Standard_B1ms \
-  --tier Burstable \
-  --storage-size 32 \
-  --version 16
-```
-
-Then update `DATABASE_URL` in `.env` to the Azure connection string.
-
-**To stop billing after a demo:**
-```bash
-# Stop the Postgres server (stops compute billing)
-az postgres flexible-server stop \
-  --name churn-db-<yourname> \
-  --resource-group churn-intelligence-rg
-
-# Stop the web app (if using App Service)
-az webapp stop --name churn-app-<yourname> --resource-group churn-intelligence-rg
-```
-
----
-
-## 6. API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/sessions/` | List all sessions |
-| POST | `/sessions/` | Create new session |
-| GET | `/sessions/{id}/stats` | Stat card data |
-| GET | `/sessions/{id}/chat-history` | Full chat history |
-| GET | `/customers/session/{id}` | Paginated customer list |
-| GET | `/customers/{id}` | Customer detail + SHAP |
-| PATCH | `/customers/{id}/status` | Update contact status |
-| POST | `/upload/` | CSV upload + score |
-| POST | `/chat/{session_id}` | Send chat message |
+## 📄 License
+This project is open-source and available under the **MIT License**.
